@@ -1,0 +1,34 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/copy.png</file>
+    <file>images/cut.png</file>
+    <file>images/new.png</file>
+    <file>images/open.png</file>
+    <file>images/paste.png</file>
+    <file>images/save.png</file>
+    <file>images/select.png</file>
+    <file>images/selectVesicle.png</file>
+    <file>images/setcv.png</file>
+    <file>images/setdisallowed.png</file>
+    <file>images/runcv.png</file>
+    <file>images/setpos.png</file>
+    <file>images/setneg.png</file>
+    <file>images/zoomin.png</file>
+    <file>images/zoomout.png</file>
+    <file>images/image.png</file>
+    <file>images/phi.png</file>
+    <file>images/boundary.png</file>
+    <file>images/signed.png</file>
+    <file>images/swapsign.png</file>
+    <file>images/3d.png</file>
+    <file>images/store.png</file>
+    <file>images/load.png</file>
+    <file>images/delete.png</file>
+    <file>images/lock.png</file>
+    <file>images/reinit.png</file>
+    <file>images/blight.png</file>
+    <file>images/restore.png</file>
+    <file>images/markNeurofilament.png</file>
+    <file>images/segmented.png</file>
+</qresource>
+</RCC>
