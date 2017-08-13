@@ -27,28 +27,20 @@ bool cellObjectLexiographicCompare (QTreeWidgetItem *a,QTreeWidgetItem *b)
 
 void sort_indexes(const std::vector<float> &v, std::vector<int> &idx)
 {
-    bool flag = false;
     iota(idx.begin(), idx.end(), 0);
-    for (int i = 0; i < idx.size(); ++i) {
-        if (idx[i] < 0 or idx[i] >= v.size()) {
-            flag = true;
-        }
-    }
-    if (flag) for (int i = 0; i < idx.size(); ++i) Debug::Info(STR(idx[i]));
+
     sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
-    if (flag) for (int i = 0; i < idx.size(); ++i) Debug::Info(STR(idx[i]));
-    if (flag) exit(0);
 }
 
 NumericToolControl::NumericToolControl(char const path[]) :
                                        mainWin(NULL)
                                      , cellTree(new QTreeWidget)
                                      , imageBeginX(0)
-                                     , imageEndX(2174) // 1000
-                                     , imageBeginY(0) // 100
-                                     , imageEndY(1854) // 600
+                                     , imageEndX(2174)
+                                     , imageBeginY(0)
+                                     , imageEndY(1854)
                                      , imageBeginZ(0)
-                                     , imageEndZ(1065) // 800
+                                     , imageEndZ(1065)
                                      , cellMembraneCount(0)
                                      , cellVesicleCount(0)
                                      , cellFilamentCount(0)
@@ -657,7 +649,8 @@ void NumericToolControl::newActiveRegion(int beginX, int endX, int beginY, int e
                       c1,
                       c2,
                       false,
-                      false);
+                      false,
+                      mainWin);
 
     updateViewImage();
     updateViewPhi();
@@ -788,7 +781,8 @@ void NumericToolControl::runChanVeseSlot(int numIterations,
                           newc1,
                           newc2,
                           constc1,
-                          constc2);
+                          constc2,
+                          mainWin);
 
         updateViewPhi();
     }
@@ -1326,7 +1320,8 @@ void NumericToolControl::loadObjectSlot()
                       c1,
                       c2,
                       false,
-                      false);
+                      false,
+                      mainWin);
 
     for (int z = 0; z < activeRegionDepth; ++z)
     {
@@ -2274,7 +2269,8 @@ void NumericToolControl::loadMatlabMembraneSegmentation()
                       c1,
                       c2,
                       false,
-                      false);
+                      false,
+                      mainWin);
 
     int N = activeRegionWidth * activeRegionHeight * activeRegionDepth;
 

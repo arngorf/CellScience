@@ -53,6 +53,8 @@ protected:
 public slots:
     void setMessage(char const message[]);
 
+    void addImageText();
+
     void scrollAreaMouseClick(float x, float y);
 
 private slots:

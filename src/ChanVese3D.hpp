@@ -1,6 +1,8 @@
 #ifndef CHANVESE3D_HPP
 #define CHANVESE3D_HPP
 
+#include "MainWindow.h"
+
 class ChanVese3D {
 public:
 
@@ -18,7 +20,8 @@ public:
                       float &c1,
                       float &c2,
                       bool isConstc1,
-                      bool isConstc2);
+                      bool isConstc2,
+                      MainWindow *mw);
 
     void setConstant_c1(bool isConstc1, float val = -1);
 

@@ -44,7 +44,6 @@ private:
 
     QTreeWidgetItem *addTreeRoot(QString name, CellObjectType type);
 
-    //TiffImage *tiffImage;
     TiffImageRef *tiffImage;
     ChanVese3D cv3d;
     MainWindow *mainWin;

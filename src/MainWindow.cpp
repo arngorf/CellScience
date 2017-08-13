@@ -745,6 +745,8 @@ void MainWindow::setFillImage(const int width,
 
     redrawBackground(activeRegionOnly);
 
+    scaleImage(1.0);
+
     Debug::Info("MainWindow::setFillImage: Leaving");
 }
 
@@ -992,6 +994,18 @@ void MainWindow::SDsetPassThrough()
 void MainWindow::setMessage(char const message[])
 {
     statusBar()->showMessage(tr(message));
+}
+
+void MainWindow::addImageText()
+{
+    QPainter p(&segmented);
+
+    p.setPen(QPen(Qt::green));
+    p.setFont(QFont("Times", 10, QFont::Bold));
+    p.drawLine(segmented.rect().bottomLeft().x(), segmented.rect().bottomLeft().y()-10,
+               segmented.rect().bottomRight().x(), segmented.rect().bottomRight().y()-10);  //works!
+
+    p.drawText(segmented.rect(), Qt::AlignCenter, "Help");  //crashes program
 }
 
 void MainWindow::scrollAreaMouseClick(float x, float y)

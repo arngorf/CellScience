@@ -15,18 +15,19 @@ ChanVese3D::ChanVese3D()
 }
 
 void ChanVese3D::segmentImage(const float * const image,
-                  float * const Phi,
-                  const float mu,
-                  const float nu,
-                  int nx,
-                  int ny,
-                  int nz,
-                  bool initPhi,
-                  int maxIter,
-                  float &c1,
-                  float &c2,
-                  bool isConstc1,
-                  bool isConstc2)
+                              float * const Phi,
+                              const float mu,
+                              const float nu,
+                              int nx,
+                              int ny,
+                              int nz,
+                              bool initPhi,
+                              int maxIter,
+                              float &c1,
+                              float &c2,
+                              bool isConstc1,
+                              bool isConstc2,
+                              MainWindow *mw)
 {
     int N = nz * ny * nx;
 
@@ -41,6 +42,8 @@ void ChanVese3D::segmentImage(const float * const image,
 
     for (int n = 0; n < maxIter; ++n)
     {
+
+        if (n % 50 == 0) mw->setMessage(("Segmenting: " +STR(((n+1) * 100) / maxIter) + " %").c_str());
 
         if (not isConstc1)
         {
