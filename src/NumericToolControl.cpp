@@ -341,8 +341,6 @@ void NumericToolControl::updateViewSignedMap()
                 }
             }
 
-            //cosineModulation(signedSlice, sdWidth, sdHeight, 10);
-
             float signedMax = signedSlice[0];
             float signedMin = signedSlice[0];
 
