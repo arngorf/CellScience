@@ -248,8 +248,6 @@ signals:
 
     void restoreSig(int imageX, int imageY, float sigma);
 
-    void calculateSignedMap();
-
     void SDSetSourcesSig();
 
     void SDSetBoundariesSig();

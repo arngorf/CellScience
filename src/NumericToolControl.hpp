@@ -141,8 +141,6 @@ public slots:
 
     void reinitPhiSlot();
 
-    void calculateSignedMap();
-
     void renderIn3DSlot();
 
     void storeObjectSlot();

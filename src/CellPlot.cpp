@@ -42,7 +42,7 @@ CellPlot::~CellPlot()
 
 }
 
-void CellPlot::InterativeCubeField(float *phaseField, int nz, int ny, int nx, float levelSet, bool invertPhasefield)
+void CellPlot::InterativeCubeField(float *phaseField, int nz, int ny, int nx, float levelSet)
 {
     // CubeActors
     std::vector<vtkSmartPointer<vtkActor>> cubeActorPtrs;

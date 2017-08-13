@@ -85,14 +85,6 @@ void FastMarching(int width, int height, int depth, float *sdm)
         }
     }
 
-    float w[26];
-    for (int i = 0; i < 26; ++i)
-    {
-        w[i] = std::sqrt(std::abs(NidxX[i])
-                        +std::abs(NidxY[i])
-                        +std::abs(NidxZ[i]));
-    }
-
     float *D = (float *) malloc(size * sizeof(float));
 
     if (D == NULL) {
@@ -128,8 +120,6 @@ void FastMarching(int width, int height, int depth, float *sdm)
     // Run Dijkstras Fast Marching
 
     Debug::Info("FastMarching: Running main loop");
-
-    float oldTestHash = 0;
 
     while(!Q.empty())
     {

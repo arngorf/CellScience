@@ -190,9 +190,6 @@ int NumericToolControl::run(MainWindow *mainWin, int argc, char *argv[])
     QObject::connect(mainWin, SIGNAL(restoreSig(int, int, float)),
                      this,    SLOT(restoreSlot(int, int, float)));
 
-    QObject::connect(mainWin, SIGNAL(calculateSignedMap()),
-                     this,    SLOT(calculateSignedMap()));
-
     QObject::connect(mainWin, SIGNAL(SDSetSourcesSig()),
                      this,    SLOT(SDSetSourcesSlot()));
 
@@ -266,10 +263,7 @@ void NumericToolControl::updateViewSegmented()
 {
     Debug::Info("NumericToolControl::updateViewSegmented: Entering");
 
-    unsigned int width = tiffImage->getWidth(); // imageEndX - imageBeginX;
-    unsigned int height = tiffImage->getHeight(); // imageEndY - imageBeginY;
-
-    int k = currentPage;
+    unsigned int width = tiffImage->getWidth();
 
     if (segmented != NULL)
     {
@@ -562,9 +556,8 @@ void NumericToolControl::updateSegmented()
 
     unsigned int width = tiffImage->getWidth();
     unsigned int height = tiffImage->getHeight();
-    unsigned int depth = tiffImage->getDepth();
 
-    int N = width * height/* * depth*/;
+    int N = width * height;
 
     for (int i = 0; i < N; ++i)
     {
@@ -670,7 +663,6 @@ void NumericToolControl::newActiveRegion(int beginX, int endX, int beginY, int e
 
     cv3d.segmentImage(activeImage,
                       phi,
-                      activeFlagArray,
                       1.0,
                       12.5,
                       activeRegionWidth,
@@ -805,7 +797,6 @@ void NumericToolControl::runChanVeseSlot(int numIterations,
         float newc2 = c2;
         cv3d.segmentImage(activeImage,
                           phi,
-                          activeFlagArray,
                           mu,
                           nu,
                           activeRegionWidth,
@@ -997,11 +988,6 @@ void NumericToolControl::setPosSlot(int beginX, int endX,
                                       activeRegionWidth,
                                       1);
                 if (phi[phiIndex] < 0) phi[phiIndex] = -phi[phiIndex];
-                int imageIndex = gIndex(i,
-                                        j,
-                                        k,
-                                        activeRegionHeight,
-                                        activeRegionWidth);
             }
         }
     }
@@ -1143,63 +1129,6 @@ void NumericToolControl::reinitPhiSlot()
     updateViewPhi();
 
     Debug::Info("NumericToolControl::reinitPhiSlot: Leaving");
-}
-
-void NumericToolControl::calculateSignedMap()
-{
-    Debug::Info("NumericToolControl::calculateSignedMap: Entering");
-
-    /*if (signedDistanceMap != NULL) {
-
-        int phiN = (activeRegionWidth + 2)
-                 * (activeRegionHeight + 2)
-                 * (activeRegionDepth + 2);
-
-        float signedMax = phi[0];
-        float signedMin = phi[0];
-
-        for (int i = 0; i < phiN; ++i)
-        {
-            signedDistanceMap[i] = phi[i];
-
-            signedMin = std::min(signedMin, phi[i]);
-            signedMax = std::max(signedMax, phi[i]);
-        }
-
-        float newZero;
-
-        normalizeImageToRange(signedDistanceMap,
-                              newZero,
-                              activeRegionWidth,
-                              activeRegionHeight,
-                              signedMin,
-                              signedMax,
-                              -1,
-                              1);
-
-        for (int i = 0; i < phiN; ++i)
-        {
-            signedDistanceMap[i] = signedDistanceMap[i] - newZero;
-        }
-
-        int diagonalDistance = (int) std::sqrt(
-                                      activeRegionWidth * activeRegionWidth
-                                    + activeRegionHeight * activeRegionHeight
-                                    + activeRegionDepth * activeRegionDepth
-                                    );
-
-        Debug::Info("Running Signed distance map numeric function using: "
-                    + STR(diagonalDistance * signedDistanceIterationFactor)
-                    + " iterations");
-
-        SignedDistanceMap(signedDistanceMap,
-                          activeRegionWidth,
-                          activeRegionHeight,
-                          activeRegionDepth,
-                          diagonalDistance * signedDistanceIterationFactor);
-    }*/
-
-    Debug::Info("NumericToolControl::calculateSignedMap: Leaving");
 }
 
 void NumericToolControl::renderIn3DSlot()
@@ -1415,7 +1344,6 @@ void NumericToolControl::loadObjectSlot()
 
     cv3d.segmentImage(activeImage,
                       phi,
-                      activeFlagArray,
                       1.0,
                       12.5,
                       activeRegionWidth,
@@ -2367,7 +2295,6 @@ void NumericToolControl::loadMatlabMembraneSegmentation()
 
     cv3d.segmentImage(activeImage,
                       phi,
-                      activeFlagArray,
                       1.0,
                       12.5,
                       activeRegionWidth,

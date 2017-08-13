@@ -19,7 +19,6 @@ public:
 
     void segmentImage(const float * const image,
                       float * const Phi,
-                      const bool * const flag,
                       const float mu,
                       const float nu,
                       int nx,
@@ -42,8 +41,6 @@ public:
 
         float *C = (float*) malloc(N * sizeof(float));
         float *V = (float*) malloc(N * sizeof(float));
-
-        int lowVmaxCount = 0;
 
         for (int n = 0; n < maxIter; ++n) {
 
@@ -112,17 +109,6 @@ public:
                                         + " averages: " + STR(c1)
                                         + ", " + STR(c2));
 
-            /*if (Vmax < 10) {
-                ++lowVmaxCount;
-                if (lowVmaxCount >= 10) {
-                    Debug::Info("ChanVese3D::segmentImage: Iterations stopped"
-                                " at iteration: " + STR(n+1)
-                                + " with vMax: " + STR(Vmax));
-                    break;
-                }
-            } else {
-                lowVmaxCount = 0;
-            }*/
         }
 
         free(C);
