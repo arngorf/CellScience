@@ -22,20 +22,18 @@
 
 // Shark
 
-#include <shark/Data/Dataset.h>
-#include <shark/Data/DataDistribution.h>
-#include <shark/Models/FFNet.h>
+//#include <shark/Data/Dataset.h>
+//#include <shark/Data/DataDistribution.h>
+//#include <shark/Models/FFNet.h>
 
-//#include <shark/Algorithms/GradientDescent/AbstractLineSearchOptimizer.h>
-#include <shark/Algorithms/GradientDescent/Rprop.h>
-//#include <shark/Algorithms/GradientDescent/BFGS.h>
+//#include <shark/Algorithms/GradientDescent/Rprop.h>
 
-#include <shark/ObjectiveFunctions/ErrorFunction.h>
-#include <shark/ObjectiveFunctions/Loss/CrossEntropy.h>
-#include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
-#include <shark/Models/FFNet.h>
+//#include <shark/ObjectiveFunctions/ErrorFunction.h>
+//#include <shark/ObjectiveFunctions/Loss/CrossEntropy.h>
+//#include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
+//#include <shark/Models/FFNet.h>
 
-using namespace shark;
+//using namespace shark;
 
 // end shark
 
@@ -2787,6 +2785,7 @@ void NumericToolControl::ripleysKFunctionSlot()
     Debug::Info("NumericToolControl::ripleysKFunctionSlot: Leaving");
 }
 
+/*
 void NumericToolControl::trainAndPredictForVesicleCalssification()
 {
     // Generate dataset
@@ -2832,16 +2831,6 @@ void NumericToolControl::trainAndPredictForVesicleCalssification()
 
         trainingLabels[vi] = vesicleLabel;
     }
-
-
-    /*for (int j = 0; j < 17; ++j)
-    {
-        for (int i = 0; i < 17; ++i)
-        {
-            std::cout << trainingInputs[51](gIndex(i,j,8,17,17)) << ", ";
-        }
-        std::cout << std::endl;
-    }*/
 
     for (int vi = 0; vi < numTestExamples; ++vi)
     {
@@ -3003,16 +2992,6 @@ void NumericToolControl::trainAndPredictForVesicleCalssification2()
         trainingLabels[vi] = vesicleLabel;
     }
 
-
-    /*for (int j = 0; j < 17; ++j)
-    {
-        for (int i = 0; i < 17; ++i)
-        {
-            std::cout << trainingInputs[51](gIndex(i,j,8,17,17)) << ", ";
-        }
-        std::cout << std::endl;
-    }*/
-
     for (int vi = 0; vi < numTestExamples; ++vi)
     {
         vGenerator.generateRandomVesicleImage(vesicleImage, vesicleLabel,
@@ -3123,7 +3102,7 @@ void NumericToolControl::trainAndPredictForVesicleCalssification2()
 
     free(responseKernels);
     free(vesicleImage);
-}
+}*/
 
 void NumericToolControl::ffmTest()
 {
