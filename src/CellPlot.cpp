@@ -69,9 +69,7 @@ void CellPlot::InterativeCubeField(float *phaseField, int nz, int ny, int nx, fl
         }
     }
 
-
-
-        // A renderer and render window
+    // A renderer and render window
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer(renderer);
@@ -95,8 +93,6 @@ void CellPlot::InterativeCubeField(float *phaseField, int nz, int ny, int nx, fl
 
     // Begin mouse interaction
     renderWindowInteractor->Start();
-
-
 }
 
 void CellPlot::InteractiveGuessMesh(float *phaseField, int nz, int ny, int nx)

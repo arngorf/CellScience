@@ -16,7 +16,6 @@
 #include "EllipsoidMinimizer.hpp"
 #include "Minimizer.hpp"
 #include "MinimizerN.hpp"
-#include "PyPlot.hpp"
 #include "CellPlot.hpp"
 
 #include "ChanVese3D.hpp"

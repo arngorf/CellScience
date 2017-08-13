@@ -74,19 +74,7 @@ NumericToolControl::NumericToolControl(char const path[]) :
 {
     Debug::Info("NumericToolControl::NumericToolControl: Entering");
 
-    /*TiffReader tiffReader;
-    tiffImage = tiffReader.readImageToTiffClass(path,
-                                                      imageBeginX,
-                                                      imageEndX,
-                                                      imageBeginY,
-                                                      imageEndY,
-                                                      imageBeginZ,
-                                                      imageEndZ);*/
-    tiffImage = new TiffImageRef(path,
-                                 imageEndX,
-                                 imageEndY,
-                                 imageEndZ);
-    //tiffImage->logHistogram();
+    tiffImage = new TiffImageRef(path, imageEndX, imageEndY, imageEndZ);
 
     cellTree->setSelectionMode(QAbstractItemView::MultiSelection);
 
@@ -263,13 +251,11 @@ void NumericToolControl::updateViewSegmented()
 {
     Debug::Info("NumericToolControl::updateViewSegmented: Entering");
 
-    unsigned int width = tiffImage->getWidth();
-
     if (segmented != NULL)
     {
         bool *segmentedSlice = &segmented[0];
 
-        mainWin->updateSegmented(width, segmentedSlice);
+        mainWin->updateSegmented(segmentedSlice);
     }
     else
     {
@@ -374,7 +360,7 @@ void NumericToolControl::updateViewSignedMap()
 
             normalizeImageToRange(signedSlice, signedZero, sdWidth, sdHeight, signedMin, signedMax, 0, 255);
 
-            mainWin->updateSignedMap(signedSlice, sdOriginX, sdOriginY, sdWidth, sdHeight, signedZero);
+            mainWin->updateSignedMap(signedSlice, sdOriginX, sdOriginY, sdWidth, sdHeight);
 
             free(signedSlice);
         } else {
@@ -712,21 +698,18 @@ void NumericToolControl::setActiveRegion(int beginX, int endX, int beginY, int e
                      " - " + STR(beginZ));
     }
 
-    Debug::Warning("Here 1");
-
     int N = activeRegionWidth * activeRegionHeight * activeRegionDepth;
     int paddedN = (activeRegionWidth + 2) * (activeRegionHeight + 2) * (activeRegionDepth + 2);
 
     if (activeImage != NULL) free(activeImage);
-    Debug::Warning("Here 1");
+
     if (activeImageOriginal != NULL) free(activeImageOriginal);
-    Debug::Warning("Here 2");
+
     if (activeFlagArray != NULL) free(activeFlagArray);
-    Debug::Warning("Here 3");
+
     if (phi != NULL) free(phi);
-    Debug::Warning("Here 4");
+
     if (filamentContour != NULL) free(filamentContour);
-    Debug::Warning("Here 5");
 
     activeImage = (float*) malloc(N * sizeof(float));
     if (activeImage == NULL) {
@@ -751,7 +734,7 @@ void NumericToolControl::setActiveRegion(int beginX, int endX, int beginY, int e
     filamentContour = NULL;
 
     activeRegion = true;
-    Debug::Warning("Here 6");
+
     for (int k = 0; k < activeRegionDepth; ++k)
     {
         for (int j = 0; j < activeRegionHeight; ++j)
@@ -763,7 +746,7 @@ void NumericToolControl::setActiveRegion(int beginX, int endX, int beginY, int e
             }
         }
     }
-    Debug::Warning("Here 7");
+
     #pragma omp parallel for
     for (int i = 0; i < N; ++i)
     {
@@ -774,13 +757,13 @@ void NumericToolControl::setActiveRegion(int beginX, int endX, int beginY, int e
     {
         GaussSmooth(activeImage, activeRegionWidth, activeRegionHeight, activeRegionDepth, sigma, 5);
     }
-    Debug::Warning("Here 8");
+
     #pragma omp parallel for
     for (int i = 0; i < N; ++i)
     {
         activeImageOriginal[i] = activeImage[i];
     }
-    Debug::Warning("Here 9");
+
     Debug::Info("NumericToolControl::setActiveRegion: Leaving");
 }
 
@@ -921,14 +904,10 @@ void NumericToolControl::finalizeNeurofilamentSlot()
 
     int N = activeRegionWidth * activeRegionHeight * activeRegionDepth;
 
-    Debug::Warning("NumericToolControl::finalizeNeurofilamentSlot: Here 1");
-
     for (int i = 0; i < N; ++i)
     {
         activeImage[i] = cytosolI;
     }
-
-    Debug::Warning("NumericToolControl::finalizeNeurofilamentSlot: Here 2");
 
     int prevX = -1;
     int prevY = -1;
@@ -940,7 +919,6 @@ void NumericToolControl::finalizeNeurofilamentSlot()
         {
             continue;
         }
-        Debug::Warning("NumericToolControl::finalizeNeurofilamentSlot: " + STR(k));
 
         int curX = filamentContour[gIndex(0,k,2)];
         int curY = filamentContour[gIndex(1,k,2)];
@@ -954,8 +932,6 @@ void NumericToolControl::finalizeNeurofilamentSlot()
         prevX = curX;
         prevY = curY;
         prevZ = curZ;
-
-        Debug::Warning("NumericToolControl::finalizeNeurofilamentSlot: End");
     }
 
     Debug::Info("NumericToolControl::finalizeNeurofilamentSlot: Leaving");
@@ -1339,8 +1315,6 @@ void NumericToolControl::loadObjectSlot()
 
     float c1 = 0;
     float c2 = 0;
-
-    Debug::Warning("DIMENSIONS OF LOADED IMAGE: " + STR(activeRegionWidth) + ", " + STR(activeRegionHeight) + ", " + STR(activeRegionDepth));
 
     cv3d.segmentImage(activeImage,
                       phi,
@@ -2247,8 +2221,8 @@ void NumericToolControl::loadMatlabMembraneSegmentation()
 
     if (!infile.eof())
     {
-    Debug::Warning("NumericToolControl::loadMatlabMembraneSegmentationSlot: "
-                   "File read error");
+        Debug::Warning("NumericToolControl::loadMatlabMembraneSegmentationSlot: "
+                       "File read error");
     }
 
     int beginX = width-1;
@@ -2285,10 +2259,7 @@ void NumericToolControl::loadMatlabMembraneSegmentation()
 
     // Copy/paste start
 
-
-
     setActiveRegion(beginX, endX, beginY, endY, beginZ, endZ, 0.0);
-    //Debug::Warning("bounds: " + STR(beginX) + ", " + STR(endX) + ", " + STR(beginY) + ", " + STR(endY) + ", " + STR(beginZ) + ", " + STR(endZ));
 
     float c1 = 0;
     float c2 = 0;
@@ -2343,8 +2314,6 @@ void NumericToolControl::loadMatlabMembraneSegmentation()
         {
             float xCur = x[k][i];
             float yCur = y[k][i];
-
-            //if (k == 0) Debug::Warning("Here vals: " + STR(xPrev) + ", " + STR(yPrev) + " to " + STR(xCur) + ", " + STR(yCur));
 
             restoreImageLine(xPrev,
                              xCur,

@@ -14,12 +14,12 @@ MainWindow::MainWindow() :
    , selectionShown(false)
    , signedMapCalculated(false)
    , imageLabel(new QLabel)
+   , blightLineEdit(new QLineEdit("2.5"))
    , iterLineEdit(new QLineEdit("2500"))
    , muLineEdit(new QLineEdit("1.0"))
    , nuLineEdit(new QLineEdit("15.0"))
    , c1LineEdit(new QLineEdit("130.0"))
    , c2LineEdit(new QLineEdit("173.0"))
-   , blightLineEdit(new QLineEdit("2.5"))
    , scrollArea(new MouseoverScrollArea)
    , scaleFactor(1)
    , selectClickedOnce(false)
@@ -330,11 +330,11 @@ void MainWindow::createActions()
 
     toolsMenu->addSeparator();
 
-    QAction *customFunctionAct = toolsMenu->addAction(tr("Run custom function"), this, &MainWindow::runCustomFunctionSig);
+    customFunctionAct = toolsMenu->addAction(tr("Run custom function"), this, &MainWindow::runCustomFunctionSig);
 
     toolsMenu->addSeparator();
 
-    QAction *finalizeNeurofilamentAct = toolsMenu->addAction(tr("Finalize Neurofilament annotation"), this, &MainWindow::finalizeNeurofilamentSig);
+    finalizeNeurofilamentAct = toolsMenu->addAction(tr("Finalize Neurofilament annotation"), this, &MainWindow::finalizeNeurofilamentSig);
 
     topToolBar->addSeparator();
 
@@ -412,10 +412,8 @@ void MainWindow::createActions()
     QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
     aboutAct->setStatusTip(tr("Show the application's About box"));
 
-
     QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-
 
     nextImageAct = viewMenu->addAction(tr("Next image"), this, &MainWindow::nextImage);
     nextImageAct->setShortcut(QKeySequence::ZoomIn);
@@ -750,7 +748,7 @@ void MainWindow::setFillImage(const int width,
     Debug::Info("MainWindow::setFillImage: Leaving");
 }
 
-void MainWindow::updateSegmented(const int width, const bool *segmentedFlag)
+void MainWindow::updateSegmented(const bool *segmentedFlag)
 {
     Debug::Info("MainWindow::updateSegmented: Entering");
 
@@ -815,8 +813,7 @@ void MainWindow::updatePhi(const float *arrayImage, float newPhiZero)
 }
 
 void MainWindow::updateSignedMap(const float *arrayImage, int sdOriginX,
-                                 int sdOriginY, int sdWidth, int sdHeight,
-                                 float signedZero)
+                                 int sdOriginY, int sdWidth, int sdHeight)
 {
     Debug::Info("MainWindow::updateSignedMap: Entering");
 

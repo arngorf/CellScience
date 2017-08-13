@@ -32,13 +32,12 @@ public:
                       const float *activeRegionImage = NULL,
                       bool activeRegionOnly = false);
 
-    void updateSegmented(const int width, const bool *segmented);
+    void updateSegmented(const bool *segmented);
 
     void updatePhi(const float *arrayImage, float newPhiZero = 0);
 
     void updateSignedMap(const float *arrayImage, int sdOriginX,
-                         int sdOriginY, int sdWidth, int sdHeight,
-                         float signedZero = 0);
+                         int sdOriginY, int sdWidth, int sdHeight);
 
     void InitViewArea(const int width, const int height, const int depth);
 
@@ -195,6 +194,9 @@ private:
     QAction *sd_readDataAct;
     QAction *sd_readFullDataAct;
     QAction *ripleyKAct;
+
+    QAction *customFunctionAct;
+    QAction *finalizeNeurofilamentAct;
 
     QAction *nextImageAct;
     QAction *prevImageAct;
