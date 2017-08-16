@@ -2,9 +2,13 @@
 #define TIFFREADER_HPP
 
 #include <tiffio.h>
+
 #include <vector>
-#include "types.hpp"
 #include <iostream>
+#include <thread>
+#include <mutex>
+
+#include "types.hpp"
 
 #include "Debug.hpp"
 
@@ -12,34 +16,46 @@ void DummyHandler(const char* module,
                   const char* fmt,
                   va_list ap);
 
-class TiffImage {
+class TiffImage
+{
 public:
 
     TiffImage();
 
-    TiffImage(const unsigned int width,
-              const unsigned int height,
-              const unsigned int depth);
+    TiffImage(const int width,
+              const int height,
+              const int depth,
+              const int zOffset);
 
     ~TiffImage();
 
-    unsigned int getWidth()
+    inline int getWidth()
     {
         return _width;
     };
 
-    unsigned int getHeight()
+    inline int getHeight()
     {
         return _height;
     };
 
-    unsigned int getDepth()
+    inline int getDepth()
     {
         return _depth;
     };
 
-    void setValue(const unsigned int i,
-                  const unsigned int value)
+    inline int getZOffset()
+    {
+        return _zOffset;
+    };
+
+    inline bool availableSlice(int z)
+    {
+        return z >= 0 and z < _depth;
+    }
+
+    void setValue(const int i,
+                  const int value)
     {
         _image[i] = (float) value;
 
@@ -55,10 +71,10 @@ public:
         }
     };
 
-    void setValue(const unsigned int x,
-                  const unsigned int y,
-                  const unsigned int z,
-                  const unsigned int value)
+    void setValue(const int x,
+                  const int y,
+                  const int z,
+                  const int value)
     {
         _image[globalIndex(x, y, z, _width, _height)] = (float) value;
 
@@ -73,16 +89,16 @@ public:
         }
     };
 
-    float getValue(const unsigned int i)
+    float getValue(const int i)
     {
         return _image[i];
     };
 
-    float getValue(const unsigned int x,
-                    const unsigned int y,
-                    const unsigned int z,
-                    const int subWindowWidth = -1,
-                    const int subWindowHeight = -1)
+    float getValue(const int x,
+                   const int y,
+                   const int z,
+                   const int subWindowWidth = -1,
+                   const int subWindowHeight = -1)
     {
         if (subWindowWidth == -1 or subWindowHeight == -1) {
             return _image[globalIndex(x, y, z, _width, _height)];
@@ -90,7 +106,7 @@ public:
         return _image[globalIndex(x, y, z, subWindowWidth, subWindowHeight)];
     };
 
-    float *getSlice(const unsigned int z)
+    float *getSlice(const int z)
     {
         return &_image[globalIndex(0, 0, z, _width, _height)];
     };
@@ -103,21 +119,23 @@ public:
         {
             Debug::Info(STR(i) + " - " + STR(_histogram[i]));
         }
-    }
+    };
 
 private:
     float *_image;
     int *_histogram;
 
-    unsigned int _width;
-    unsigned int _height;
-    unsigned int _depth;
+    int _width;
+    int _height;
+    int _depth;
 
-    unsigned int globalIndex(const unsigned int x,
-                             const unsigned int y,
-                             const unsigned int z,
-                             const int width,
-                             const int height)
+    int _zOffset;
+
+    int globalIndex(const int x,
+                    const int y,
+                    const int z,
+                    const int width,
+                    const int height)
     {
         return z * width*height + y * width + x;
     }
@@ -141,97 +159,78 @@ public:
 
 };
 
+void grabImageSlice(const std::string path,
+                    const int width,
+                    const int height,
+                    const int beginZ,
+                    const int endZ,
+                    bool &grabbing,
+                    TiffImage *&imagePointer,
+                    std::mutex &tiffImageMutex);
+
 class TiffImageRef {
 public:
 
     TiffImageRef();
 
     TiffImageRef(char const path[],
-                 const unsigned int width,
-                 const unsigned int height,
-                 const unsigned int depth);
+                 const int width,
+                 const int height,
+                 const int depth);
 
     ~TiffImageRef();
 
-    unsigned int getWidth()
+    inline int getWidth()
     {
         return _width;
-    };
+    }
 
-    unsigned int getHeight()
+    inline int getHeight()
     {
         return _height;
-    };
+    }
 
-    unsigned int getDepth()
+    inline int getDepth()
     {
         return _depth;
-    };
-
-    float getValue(const unsigned int x,
-                    const unsigned int y,
-                    const unsigned int z,
-                    const int subWindowWidth = -1,
-                    const int subWindowHeight = -1)
-    {
-        updateImageSlice(z);
-
-        return tiffImage->getValue(x,y,0,subWindowWidth, subWindowHeight);
-    };
-
-    float *getSlice(const unsigned int z)
-    {
-        updateImageSlice(z);
-
-        return tiffImage->getSlice(0);
-    };
-
-    void logHistogram()
-    {
-        Debug::Info("## Pixel Histogram ##");
-        Debug::Info("Value - Count:");
-        for (int i = 0; i < 256; ++i)
-        {
-            Debug::Info(STR(i) + " - " + STR(_histogram[i]));
-        }
     }
+
+    float getValue(const int x,
+                   const int y,
+                   const int z,
+                   const int subWindowWidth = -1,
+                   const int subWindowHeight = -1);
+
+    float *getSlice(const int z);
+
+    void logHistogram();
 
 private:
     std::string path;
     TiffImage *tiffImage;
+    float *imageSlicePointer;
     int *_histogram;
 
-    unsigned int currentZ;
+    int currentZ;
 
-    unsigned int _width;
-    unsigned int _height;
-    unsigned int _depth;
+    int _width;
+    int _height;
+    int _depth;
 
-    unsigned int globalIndex(const unsigned int x,
-                             const unsigned int y,
-                             const unsigned int z,
+    bool tiffImageRetrievalInProgress;
+
+    std::mutex tiffImageMutex;
+
+    int globalIndex(const int x,
+                             const int y,
+                             const int z,
                              const int width,
                              const int height)
     {
         return z * width*height + y * width + x;
     }
 
-    void updateImageSlice(const unsigned int z)
-    {
-        if (z != currentZ and z < _depth)
-        {
-            if (tiffImage != NULL) delete tiffImage;
-            currentZ = z;
-            TiffReader tiffReader;
-            tiffImage = tiffReader.readImageToTiffClass(path.c_str(),
-                                                        0,
-                                                        _width,
-                                                        0,
-                                                        _height,
-                                                        currentZ,
-                                                        currentZ+1);
-        }
-    }
+    void updateImageSlice(const int z);
 };
 
 #endif // TIFFREADER_HPP
