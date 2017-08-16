@@ -2035,12 +2035,14 @@ void NumericToolControl::normalizeImageToRange(float *image,
     float boundRange = boundMax - boundMin;
     float imageRange = imageMax - imageMin;
 
+    // Normalize values
     for (int i = 0; i < N; ++i)
     {
         float val = (image[i] - imageMin) / imageRange;
         image[i] = std::max(std::min(val * boundRange + boundMin, boundMax),boundMin);
     }
 
+    // Calculate and store new value corresponding to old 0 level set
     phiZero = -imageMin / imageRange * boundRange + boundMin;
 
     Debug::Info("NumericToolControl::normalizeImageToRange: Leaving");

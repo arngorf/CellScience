@@ -525,7 +525,8 @@ float *TiffImageRef::getSlice(const int z)
         if (availableSlice)
         {
             tmp_imageSlicePointer = tiffImage->getSlice(subImageZ);
-            tiffImageMutex.unlock();
+            // Don't unlock yet, now we have the slice we need to keep the
+            // lock lest it gets invalid in the meantime
             break;
         }
         tiffImageMutex.unlock();
@@ -535,6 +536,7 @@ float *TiffImageRef::getSlice(const int z)
     {
         imageSlicePointer[i] = tmp_imageSlicePointer[i];
     }
+    tiffImageMutex.unlock();
 
     //Debug::Info("TiffImageRef::getSlice: Leaving");
     return imageSlicePointer;
