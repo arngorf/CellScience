@@ -31,13 +31,13 @@ void grabImageSlice(const std::string path,
                                                                  beginZ,
                                                                  endZ);
 
-    Debug::Warning("Grabber thread: getting lock");
+    //Debug::Warning("Grabber thread: getting lock");
     //std::lock_guard<std::mutex> guard(tiffImageMutex);
     tiffImageMutex.lock();
 
     if (imagePointer != NULL)
     {
-        Debug::Warning("Deleting imagePointer");
+        //Debug::Warning("Deleting imagePointer");
         delete imagePointer;
     }
 
@@ -45,7 +45,7 @@ void grabImageSlice(const std::string path,
 
     grabbing = false;
     tiffImageMutex.unlock();
-    Debug::Warning("Grabber thread: done");
+    //Debug::Warning("Grabber thread: done");
 }
 
 TiffImage::TiffImage() :_width(0), _height(0), _depth(0), _zOffset(0)
@@ -528,6 +528,12 @@ float *TiffImageRef::getSlice(const int z)
             // Don't unlock yet, now we have the slice we need to keep the
             // lock lest it gets invalid in the meantime
             break;
+        }
+        if (!availableSlice and !tiffImageRetrievalInProgress)
+        {
+            tiffImageMutex.unlock();
+            updateImageSlice(z);
+            tiffImageMutex.lock();
         }
         tiffImageMutex.unlock();
     }

@@ -20,12 +20,11 @@ MainWindow::MainWindow() :
    , nuLineEdit(new QLineEdit("15.0"))
    , c1LineEdit(new QLineEdit("130.0"))
    , c2LineEdit(new QLineEdit("173.0"))
+   , pageLineEdit(new QLineEdit("0"))
    , scrollArea(new MouseoverScrollArea)
    , scaleFactor(1)
    , selectClickedOnce(false)
 {
-    //setCentralWidget(textEdit);
-
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
@@ -250,36 +249,36 @@ void MainWindow::createActions()
     topToolBar->addAction(loadAct);
 
     // Delete Object icon
-    QIcon deleteIcon = QIcon::fromTheme("document-new", QIcon(":/images/delete.png"));
-    QAction *deleteAct = new QAction(deleteIcon, tr("&Delete"), this);
-    deleteAct->setStatusTip(tr("Delete cell object"));
-    connect(deleteAct, &QAction::triggered, this, &MainWindow::deleteObject);
-    topToolBar->addAction(deleteAct);
+    //QIcon deleteIcon = QIcon::fromTheme("document-new", QIcon(":/images/delete.png"));
+    //QAction *deleteAct = new QAction(deleteIcon, tr("&Delete"), this);
+    //deleteAct->setStatusTip(tr("Delete cell object"));
+    //connect(deleteAct, &QAction::triggered, this, &MainWindow::deleteObject);
+    //topToolBar->addAction(deleteAct);
 
     // Set region positive icon
-    QIcon setposIcon = QIcon::fromTheme("document-new", QIcon(":/images/setpos.png"));
-    QAction *setposAct = new QAction(setposIcon, tr("&Set positive"), this);
-    setposAct->setStatusTip(tr("Set region positive"));
-    connect(setposAct, &QAction::triggered, this, &MainWindow::setPos);
-    topToolBar->addAction(setposAct);
+    //QIcon setposIcon = QIcon::fromTheme("document-new", QIcon(":/images/setpos.png"));
+    //QAction *setposAct = new QAction(setposIcon, tr("&Set positive"), this);
+    //setposAct->setStatusTip(tr("Set region positive"));
+    //connect(setposAct, &QAction::triggered, this, &MainWindow::setPos);
+    //topToolBar->addAction(setposAct);
 
     // Set region positive icon
-    QIcon setnegIcon = QIcon::fromTheme("document-new", QIcon(":/images/setneg.png"));
-    QAction *setnegAct = new QAction(setnegIcon, tr("&Set negative"), this);
-    setnegAct->setStatusTip(tr("Set region negative"));
-    connect(setnegAct, &QAction::triggered, this, &MainWindow::setNeg);
-    topToolBar->addAction(setnegAct);
+    //QIcon setnegIcon = QIcon::fromTheme("document-new", QIcon(":/images/setneg.png"));
+    //QAction *setnegAct = new QAction(setnegIcon, tr("&Set negative"), this);
+    //setnegAct->setStatusTip(tr("Set region negative"));
+    //connect(setnegAct, &QAction::triggered, this, &MainWindow::setNeg);
+    //topToolBar->addAction(setnegAct);
 
     // Set region disallowed icon
-    QIcon setdisallowedIcon = QIcon::fromTheme("document-new", QIcon(":/images/setdisallowed.png"));
-    QAction *setdisallowedAct = new QAction(setdisallowedIcon, tr("&Set disallowed"), this);
-    setdisallowedAct->setStatusTip(tr("Set region disallowed"));
-    connect(setdisallowedAct, &QAction::triggered, this, &MainWindow::setDisallowed);
-    topToolBar->addAction(setdisallowedAct);
+    //QIcon setdisallowedIcon = QIcon::fromTheme("document-new", QIcon(":/images/setdisallowed.png"));
+    //QAction *setdisallowedAct = new QAction(setdisallowedIcon, tr("&Set disallowed"), this);
+    //setdisallowedAct->setStatusTip(tr("Set region disallowed"));
+    //connect(setdisallowedAct, &QAction::triggered, this, &MainWindow::setDisallowed);
+    //topToolBar->addAction(setdisallowedAct);
 
     // Swap sign icon
     QIcon swapSignIcon = QIcon::fromTheme("document-new", QIcon(":/images/swapsign.png"));
-    QAction *swapSignAct = new QAction(swapSignIcon, tr("&Set disallowed"), this);
+    QAction *swapSignAct = new QAction(swapSignIcon, tr("&Swap sign"), this);
     swapSignAct->setStatusTip(tr("Swap sign of phasefield"));
     connect(swapSignAct, &QAction::triggered, this, &MainWindow::swapPhiSign);
     topToolBar->addAction(swapSignAct);
@@ -298,14 +297,29 @@ void MainWindow::createActions()
     zoomInAct = viewMenu->addAction(zoomInIcon ,tr("Zoom &In (25%)"), this, &MainWindow::zoomIn);
     zoomInAct->setShortcut(Qt::Key_Plus);
     zoomInAct->setStatusTip(tr("Zoom in"));
-    topToolBar->addAction(zoomInAct);
+    //topToolBar->addAction(zoomInAct);
 
     // Zoom out icon
     const QIcon zoomOutIcon = QIcon::fromTheme("document-open", QIcon(":/images/zoomout.png"));
     zoomOutAct = viewMenu->addAction(zoomOutIcon ,tr("Zoom &Out (25%)"), this, &MainWindow::zoomOut);
     zoomOutAct->setShortcut(Qt::Key_Minus);
     zoomOutAct->setStatusTip(tr("Zoom out"));
-    topToolBar->addAction(zoomOutAct);
+    //topToolBar->addAction(zoomOutAct);
+
+    QLabel *pageLabel = new QLabel(tr("Page"));
+    pageLineEdit->setMaximumWidth(54);
+    pageLineEdit->setValidator( new QIntValidator(0, 1064, this) );
+    topToolBar->addWidget(pageLabel);
+    topToolBar->addWidget(pageLineEdit);
+
+    // Go to page icon
+    QIcon gotoPageIcon = QIcon::fromTheme("document-new", QIcon(":/images/setdisallowed.png"));
+    QAction *gotoPageAct = new QAction(gotoPageIcon, tr("&Go to page"), this);
+    gotoPageAct->setStatusTip(tr("Go to page"));
+    connect(gotoPageAct, &QAction::triggered, this, &MainWindow::gotoPage);
+    topToolBar->addAction(gotoPageAct);
+
+    topToolBar->addSeparator();
 
     // Signed Distance: Run
     sd_runAct = toolsMenu->addAction(tr("Run sdm"), this, &MainWindow::runBoundedSignedDistanceMap);
@@ -335,6 +349,15 @@ void MainWindow::createActions()
     toolsMenu->addSeparator();
 
     finalizeNeurofilamentAct = toolsMenu->addAction(tr("Finalize Neurofilament annotation"), this, &MainWindow::finalizeNeurofilamentSig);
+
+    toolsMenu->addSeparator();
+
+    setposAct = toolsMenu->addAction(tr("Set phi of region positive"), this, &MainWindow::setPos);
+    setnegAct = toolsMenu->addAction(tr("Set phi of region negative"), this, &MainWindow::setNeg);
+
+    toolsMenu->addSeparator();
+
+    deleteAct = toolsMenu->addAction(tr("Delete currently selected object"), this, &MainWindow::deleteObject);
 
     topToolBar->addSeparator();
 
@@ -974,6 +997,13 @@ void MainWindow::zoomOut()
     scaleImage(0.8);
 }
 
+void MainWindow::gotoPage()
+{
+    int newZ = pageLineEdit->text().toInt();
+
+    emit gotoPageSig(newZ);
+}
+
 void MainWindow::nextImage()
 {
     emit nextImageSig();
@@ -1017,8 +1047,10 @@ void MainWindow::scrollAreaMouseClick(float x, float y)
     int imageY = int((y+dy)/imageLabel->height() * imageHeight);
     if (imageX >= 0 and imageY >= 0 and imageX < imageWidth and imageY < imageHeight)
     {
-        if (selectAct->isChecked()) {
-            if (selectClickedOnce) {
+        if (selectAct->isChecked())
+        {
+            if (selectClickedOnce)
+            {
                 selectionEndX = imageX;
                 selectionEndY = imageY;
                 selectionEndZ = currentZ;
@@ -1031,7 +1063,9 @@ void MainWindow::scrollAreaMouseClick(float x, float y)
 
                 drawSelectionBorder();
                 selectionShown = true;
-            } else {
+            }
+            else
+            {
                 selectionBeginX = imageX;
                 selectionBeginY = imageY;
                 selectionBeginZ = currentZ;
@@ -1043,7 +1077,6 @@ void MainWindow::scrollAreaMouseClick(float x, float y)
         }
         else if (vesicleCenterAct->isChecked())
         {
-            Debug::Info("Vesicle: " + STR(imageX) + ", " + STR(imageY));
             emit markVesicleLocationSig(imageX, imageY);
         }
         else if (neurofilamentCenterAct->isChecked())
@@ -1132,31 +1165,10 @@ void MainWindow::drawActiveRegionBorder()
 {
     Debug::Info("MainWindow::drawActiveRegionBorder: Entering");
 
-    //QImage newQImage(imageWidth, imageHeight, QImage::Format_ARGB32);
-
     int activeBorderRegionWidth = activeRegionEndX - activeRegionBeginX + 3;
     int activeBorderRegionHeight = activeRegionEndY - activeRegionBeginY + 3;
 
     QImage newQImage(activeBorderRegionWidth, activeBorderRegionHeight, QImage::Format_ARGB32);
-
-
-    /*for (int j = 0; j < imageHeight; ++j)
-    {
-        for (int i = 0; i < imageWidth; ++i)
-        {
-            if (((i >= activeRegionBeginX - 1 and (j == activeRegionBeginY - 1 or j == activeRegionEndY + 1)) and
-                (i <= activeRegionEndX   + 1 and (j == activeRegionBeginY - 1 or j == activeRegionEndY + 1))) or
-                ((j >= activeRegionBeginY - 1 and (i == activeRegionBeginX - 1 or i == activeRegionEndX + 1)) and
-                (j <= activeRegionEndY   + 1 and (i == activeRegionBeginX - 1 or i == activeRegionEndX + 1))))
-            {
-                newQImage.setPixelColor(i, j, QColor(0, 0, 255, 255));
-            }
-            else
-            {
-                newQImage.setPixelColor(i, j, QColor(0, 0, 0, 0));
-            }
-        }
-    }*/
 
     newQImage.fill(QColor(0,0,0,0));
 

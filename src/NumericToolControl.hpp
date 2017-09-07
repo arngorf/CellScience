@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "TiffReader.hpp"
 #include "UtilityFunctions.hpp"
+#include "VesicleSegmentationWindow.h"
 
 class QAction;
 
@@ -47,6 +48,7 @@ private:
     TiffImageRef *tiffImage;
     ChanVese3D cv3d;
     MainWindow *mainWin;
+    VesicleSegmentationWindow *vesicleSegmentationWindow;
 
     QTreeWidget *cellTree;
 
@@ -114,6 +116,8 @@ public slots:
     void nextImage();
 
     void prevImage();
+
+    void gotoPageSlot(int newZ);
 
     void newActiveRegion(int beginX, int endX, int beginY, int endY, int beginZ, int endZ, float sigma);
 

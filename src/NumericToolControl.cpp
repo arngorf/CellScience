@@ -34,6 +34,7 @@ void sort_indexes(const std::vector<float> &v, std::vector<int> &idx)
 
 NumericToolControl::NumericToolControl(char const path[]) :
                                        mainWin(NULL)
+                                     , vesicleSegmentationWindow(NULL)
                                      , cellTree(new QTreeWidget)
                                      , imageBeginX(0)
                                      , imageEndX(2174)
@@ -124,6 +125,9 @@ int NumericToolControl::run(MainWindow *mainWin, int argc, char *argv[])
 
     QObject::connect(mainWin, SIGNAL(prevImageSig()),
                      this,    SLOT(prevImage()));
+
+    QObject::connect(mainWin, SIGNAL(gotoPageSig(int)),
+                     this,    SLOT(gotoPageSlot(int)));
 
     QObject::connect(mainWin, SIGNAL(newActiveRegionSig(int, int, int, int, int, int, float)),
                      this,    SLOT(newActiveRegion(int, int, int, int, int, int, float)));
@@ -626,6 +630,19 @@ void NumericToolControl::prevImage()
     updateSegmented();
 
     Debug::Info("NumericToolControl::prevImage: Leaving");
+}
+
+void NumericToolControl::gotoPageSlot(int newZ)
+{
+    Debug::Info("NumericToolControl::gotoPage: Entering");
+
+    currentPage = newZ;
+
+    updateViewImage();
+    updateViewPhi();
+    updateViewSegmented();
+
+    Debug::Info("NumericToolControl::gotoPage: Leaving");
 }
 
 void NumericToolControl::newActiveRegion(int beginX, int endX, int beginY, int endY, int beginZ, int endZ, float sigma)
@@ -1944,7 +1961,11 @@ void NumericToolControl::runCustomFunctionSlot()
 {
     //loadMatlabMembraneSegmentation();
     //trainAndPredictForVesicleCalssification();
-    ffmTest();
+    //ffmTest();
+    vesicleSegmentationWindow = new VesicleSegmentationWindow();
+    vesicleSegmentationWindow->show();
+    vesicleSegmentationWindow->InitViewArea(20,20);
+    //vesicleSegmentationWindow->setFillImage(rotatedVesicleImageSlice);
 }
 
 void NumericToolControl::cleanSignedDistanceMap(int width,

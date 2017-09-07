@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <QActionGroup>
 #include <QImage>
@@ -66,6 +66,7 @@ private slots:
     void documentWasModified();
     void zoomIn();
     void zoomOut();
+    void gotoPage();
     void nextImage();
     void prevImage();
     void SDsetPassThrough();
@@ -149,6 +150,7 @@ private:
     QLineEdit *nuLineEdit;
     QLineEdit *c1LineEdit;
     QLineEdit *c2LineEdit;
+    QLineEdit *pageLineEdit;
 
     MouseoverScrollArea *scrollArea;
     float scaleFactor;
@@ -198,7 +200,13 @@ private:
     QAction *ripleyKAct;
 
     QAction *customFunctionAct;
+
     QAction *finalizeNeurofilamentAct;
+
+    QAction *setposAct;
+    QAction *setnegAct;
+
+    QAction *deleteAct;
 
     QAction *nextImageAct;
     QAction *prevImageAct;
@@ -207,6 +215,8 @@ signals:
     void nextImageSig();
 
     void prevImageSig();
+
+    void gotoPageSig(int newZ);
 
     void newActiveRegionSig(int beginX, int endX,
                             int beginY, int endY,
@@ -269,4 +279,4 @@ signals:
     void runCustomFunctionSig();
 };
 
-#endif
+#endif // MAIN_WINDOW_H
