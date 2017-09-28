@@ -1,9 +1,9 @@
+#include <chrono>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <exception>
-#include <random>
 
 #include "DistPointHyperellipsoid.hpp"
 #include "ellipsoidHelpers.hpp"
@@ -11,7 +11,8 @@
 #include "Hyperellipsoid.hpp"
 
 namespace Random {
-    std::default_random_engine generator = std::default_random_engine(3); //
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator = std::default_random_engine(seed); //
     std::uniform_real_distribution<double> randU = std::uniform_real_distribution<double>(0, 1); //
     std::normal_distribution<double> randN = std::normal_distribution<double>(0, 1); //
 }
@@ -106,6 +107,28 @@ Mat GetEulerRotationMatrix(Vector const &eulerAngles, bool transposed, bool reve
     if (transposed) {
         R.transposeInPlace();
     }
+    return R;
+}
+
+Mat GetAxisAngleRotationMatrix(float x,float y,float z, float theta)
+{
+    Mat R(3,3);
+
+    float ct = cos(theta);
+    float st = sin(theta);
+
+    R(0,0) = ct + x*x*(1 - ct);
+    R(0,1) = x*y*(1 - ct) - z*st;
+    R(0,2) = x*z*(1 - ct) + y*st;
+
+    R(1,0) = y*x*(1 - ct) + z*st;
+    R(1,1) = ct + y*y*(1 - ct);
+    R(1,2) = y*z*(1 - ct) - x*st;
+
+    R(2,0) = z*x*(1 - ct) - y*st;
+    R(2,1) = z*y*(1 - ct) + x*st;
+    R(2,2) = ct + z*z*(1 - ct);
+
     return R;
 }
 

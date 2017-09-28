@@ -87,6 +87,8 @@ private slots:
     void storeObject();
     void loadObject();
     void deleteObject();
+    void startVesicleSegmentation();
+    void addVesiclesToSegmentationPool();
 
 
 #ifndef QT_NO_SESSIONMANAGER
@@ -257,6 +259,10 @@ signals:
     void loadObjectSig();
 
     void deleteObjectSig();
+
+    void startVesicleSegmentationSig();
+
+    void addVesiclesToSegmentationPoolSig();
 
     void blightSig(int imageX, int imageY, float sigma);
 

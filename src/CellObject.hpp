@@ -64,6 +64,10 @@ public:
                int activeRegionHeight,
                int activeRegionWidth);
 
+    void getCenter(float &center_x, float &center_y, float &center_z);
+
+    void getCenter(int &center_x, int &center_y, int &center_z);
+
     void getBounds(int &beginX, int &endX,
                    int &beginY, int &endY,
                    int &beginZ, int &endZ);

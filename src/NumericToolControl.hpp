@@ -11,6 +11,8 @@
 #include "TiffReader.hpp"
 #include "UtilityFunctions.hpp"
 #include "VesicleSegmentationWindow.h"
+#include "VesicleSegmentationResult.hpp"
+#include "VesicleSegmentationResultManager.hpp"
 
 class QAction;
 
@@ -80,6 +82,8 @@ private:
     std::vector<CellObject*> sdSourceObjects;
     std::vector<CellObject*> sdPassThroughObjects;
 
+    VesicleSegmentationResultManager *vesicleSegmentationResultManager;
+
     const int signedDistanceIterationFactor;
 
     float cytosolI;
@@ -113,6 +117,11 @@ private:
     int *filamentContour;
 
 public slots:
+
+    /*************************************************************************
+    *****  MainWindow Slots  *************************************************
+    *************************************************************************/
+
     void nextImage();
 
     void prevImage();
@@ -152,6 +161,10 @@ public slots:
 
     void deleteObjectSlot();
 
+    void startVesicleSegmentationSlot();
+
+    void addVesiclesToSegmentationPoolSlot();
+
     void blightSlot(int imageX, int imageY, float sigma);
 
     void restoreSlot(int imageX, int imageY, float sigma);
@@ -171,6 +184,14 @@ public slots:
     void ripleysKFunctionSlot();
 
     void runCustomFunctionSlot();
+
+    /*************************************************************************
+    *****  VesicleSegmentationWindow Slots  **********************************
+    *************************************************************************/
+
+    void storeSegmentationSlot(std::vector<float> x, std::vector<float> y);
+
+    void nextSlot();
 
 private:
 

@@ -52,6 +52,7 @@ NumericToolControl::NumericToolControl(char const path[]) :
                                      , sdBoundaryObjects(0)
                                      , sdSourceObjects(0)
                                      , sdPassThroughObjects(0)
+                                     , vesicleSegmentationResultManager(NULL)
                                      , signedDistanceIterationFactor(4)
                                      , cytosolI(172)
                                      , travelWeight(1)
@@ -69,6 +70,8 @@ NumericToolControl::NumericToolControl(char const path[]) :
 
     tiffImage = new TiffImageRef(path, imageEndX, imageEndY, imageEndZ);
 
+    vesicleSegmentationResultManager = new VesicleSegmentationResultManager(path, 31, 31);
+
     cellTree->setSelectionMode(QAbstractItemView::MultiSelection);
 
     Debug::Info("NumericToolControl::NumericToolControl: Leaving");
@@ -79,6 +82,8 @@ NumericToolControl::~NumericToolControl()
     Debug::Info("NumericToolControl::~NumericToolControl: Entering");
 
     saveObjectsToFile();
+
+    delete(vesicleSegmentationResultManager);
 
     Debug::Info("NumericToolControl::~NumericToolControl: Leaving");
 }
@@ -119,6 +124,10 @@ int NumericToolControl::run(MainWindow *mainWin, int argc, char *argv[])
     mainWin->setFillImage(width, height, 0, imageSlice);
 
     createCellTree();
+
+    /*************************************************************************
+    *****  MainWindow Signal/Slot Connects  **********************************
+    *************************************************************************/
 
     QObject::connect(mainWin, SIGNAL(nextImageSig()),
                      this,    SLOT(nextImage()));
@@ -200,6 +209,12 @@ int NumericToolControl::run(MainWindow *mainWin, int argc, char *argv[])
 
     QObject::connect(mainWin, SIGNAL(finalizeNeurofilamentSig()),
                      this,    SLOT(finalizeNeurofilamentSlot()));
+
+    QObject::connect(mainWin, SIGNAL(startVesicleSegmentationSig()),
+                     this,    SLOT(startVesicleSegmentationSlot()));
+
+    QObject::connect(mainWin, SIGNAL(addVesiclesToSegmentationPoolSig()),
+                     this,    SLOT(addVesiclesToSegmentationPoolSlot()));
 
     loadObjectsFromFile();
 
@@ -1429,6 +1444,66 @@ void NumericToolControl::deleteObjectSlot()
     Debug::Info("NumericToolControl::deleteObjectSlot: Leaving");
 }
 
+void NumericToolControl::startVesicleSegmentationSlot()
+{
+    int vesicleSegImgBaseWidth = 31;
+    int vesicleSegImgBaseHeight = 31;
+
+    vesicleSegmentationWindow = new VesicleSegmentationWindow();
+    vesicleSegmentationWindow->show();
+    vesicleSegmentationWindow->setGeometry
+                                (
+                                QStyle::alignedRect(
+                                    Qt::LeftToRight,
+                                    Qt::AlignCenter,
+                                    vesicleSegmentationWindow->size(),
+                                    qApp->desktop()->availableGeometry()
+                                )
+);
+    vesicleSegmentationWindow->InitViewArea(vesicleSegImgBaseWidth,vesicleSegImgBaseHeight);
+
+    /*************************************************************************
+    *****  VesicleSegmentationWindow Signal/Slot Connects  *******************
+    *************************************************************************/
+
+    QObject::connect(vesicleSegmentationWindow, SIGNAL(storeSegmentationSig(std::vector<float>, std::vector<float>)),
+                     this,                      SLOT(storeSegmentationSlot(std::vector<float>, std::vector<float>)));
+
+    QObject::connect(vesicleSegmentationWindow, SIGNAL(nextSig()),
+                     this,                      SLOT(nextSlot()));
+
+    // Connect signals from window to manager
+    // MISSING
+
+    // Query manager to get next slice
+    vesicleSegmentationResultManager->NextSlice();
+
+    // Pass on image slice from manager to window
+    vesicleSegmentationWindow->setFillImage(vesicleSegmentationResultManager->GetImageSlice());
+
+    float completionValue = vesicleSegmentationResultManager->GetCompletionValue();
+    float minCompletionValue = vesicleSegmentationResultManager->GetMinCompletionValue();
+
+    vesicleSegmentationWindow->setCompletion(completionValue, minCompletionValue);
+    // Generate rotated 2D vesicle slice image
+
+    // vesicleSegmentationWindow->hideBigMessage();
+}
+
+void NumericToolControl::addVesiclesToSegmentationPoolSlot()
+{
+    QList<QTreeWidgetItem *> selectedObjects = cellTree->selectedItems();
+
+    for (int i = 0; i < selectedObjects.length(); ++i)
+    {
+        CellObject *object = (CellObject *) selectedObjects[i];
+        if (object->getType() == COT_VESICLE)
+        {
+            vesicleSegmentationResultManager->AddVesicle(object);
+        }
+    }
+}
+
 void NumericToolControl::blightSlot(int imageX, int imageY, float sigma)
 {
     Debug::Info("NumericToolControl::blightSlot: Entering");
@@ -1962,10 +2037,21 @@ void NumericToolControl::runCustomFunctionSlot()
     //loadMatlabMembraneSegmentation();
     //trainAndPredictForVesicleCalssification();
     //ffmTest();
-    vesicleSegmentationWindow = new VesicleSegmentationWindow();
-    vesicleSegmentationWindow->show();
-    vesicleSegmentationWindow->InitViewArea(20,20);
-    //vesicleSegmentationWindow->setFillImage(rotatedVesicleImageSlice);
+}
+
+void NumericToolControl::storeSegmentationSlot(std::vector<float> x, std::vector<float> y)
+{
+    vesicleSegmentationResultManager->SetSegmentationResult(x, y);
+}
+
+void NumericToolControl::nextSlot()
+{
+    // Query manager to get next slice
+    vesicleSegmentationResultManager->NextSlice();
+
+    // Pass on image slice from manager to window
+    vesicleSegmentationWindow->setFillImage(vesicleSegmentationResultManager->GetImageSlice());
+    vesicleSegmentationWindow->setCompletion(vesicleSegmentationResultManager->GetCompletionValue());
 }
 
 void NumericToolControl::cleanSignedDistanceMap(int width,

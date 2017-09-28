@@ -3,6 +3,8 @@
 
 #include "Ellipsoid.hpp"
 
+#include <Eigen/Core>
+
 #include <random>
 
 struct EllipsoidComparisonResult {
@@ -55,6 +57,8 @@ std::vector<double> getEllipsoidX(Vector v, double y, double z);
 double EllipsoidEnergyFromQC(Vector v, double x, double y, double z);
 
 Mat GetEulerRotationMatrix(Vector const &eulerAngles, bool transposed = false, bool reversed = false);
+
+Mat GetAxisAngleRotationMatrix(float x,float y,float z, float theta);
 
 Mat RandomRotationMatrix();
 

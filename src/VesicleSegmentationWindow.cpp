@@ -5,10 +5,12 @@
 #include "Debug.hpp"
 
 VesicleSegmentationWindow::VesicleSegmentationWindow() :
-     segmentedFlag(NULL)
-   , imageLabel(new QLabel)
+     imageLabel(new QLabel)
+   , completionLabel(new QLabel)
    , scrollArea(new MouseoverScrollArea)
-   , scaleFactor(1)
+   , scaleFactor(10.0)
+   , segmentingPointX(0)
+   , segmentingPointY(0)
 {
 
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -38,12 +40,29 @@ void VesicleSegmentationWindow::createActions()
 {
     Debug::Info("VesicleSegmentationWindow::createActions: Entering");
 
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    QMenu *vesicleMenu = menuBar()->addMenu(tr("&VesSeg"));
+    //QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
+    //QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
     QToolBar *topToolBar = addToolBar(tr("Top"));
-    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
-    QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
 
     segmentationGroup = new QActionGroup(this);
+
+    QAction *saveAct = new QAction(tr("&Save (and next)"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    saveAct->setStatusTip(tr("Save and get next vesicle"));
+    connect(saveAct, &QAction::triggered, this, &VesicleSegmentationWindow::nextSlice);
+    vesicleMenu->addAction(saveAct);
+
+    QAction *undoAct = new QAction(tr("Undo&z..."), this);
+    undoAct->setShortcuts(QKeySequence::Undo);
+    undoAct->setStatusTip(tr("Undo last add action"));
+    connect(undoAct, &QAction::triggered, this, &VesicleSegmentationWindow::undo);
+    vesicleMenu->addAction(undoAct);
+
+    const QIcon exitIcon = QIcon::fromTheme("application-exit");
+    QAction *exitAct = vesicleMenu->addAction(exitIcon, tr("&QuitSeg"), this, &QWidget::close);
+    exitAct->setShortcuts(QKeySequence::Quit);
+    exitAct->setStatusTip(tr("End segmentation"));
 
     // Add icon
     QIcon addIcon = QIcon::fromTheme("document-new", QIcon(":/images/select.png"));
@@ -69,6 +88,13 @@ void VesicleSegmentationWindow::createActions()
     removeAct->setCheckable(true);
     segmentationGroup->addAction(removeAct);
     topToolBar->addAction(removeAct);
+
+    topToolBar->addSeparator();
+
+    completionLabel = new QLabel(tr("0.0"));
+    topToolBar->addWidget(completionLabel);
+
+    topToolBar->addSeparator();
 
     Debug::Info("VesicleSegmentationWindow::createActions: Leaving");
 }
@@ -96,6 +122,31 @@ void VesicleSegmentationWindow::showImage()
     imageLabel->setPixmap(pixmap);
 }
 
+void VesicleSegmentationWindow::undo()
+{
+    int n = segmentingPointX.size();
+
+    if (n > 0)
+    {
+        segmentingPointX.resize(n-1);
+        segmentingPointY.resize(n-1);
+
+        updateSegmented();
+    }
+}
+
+void VesicleSegmentationWindow::nextSlice()
+{
+    emit storeSegmentationSig(segmentingPointX, segmentingPointY);
+
+    segmentingPointX.resize(0);
+    segmentingPointY.resize(0);
+
+    updateSegmented();
+
+    emit nextSig();
+}
+
 void VesicleSegmentationWindow::setFillImage(const float *arrayImage)
 {
     Debug::Info("VesicleSegmentationWindow::setFillImage: Entering");
@@ -111,6 +162,9 @@ void VesicleSegmentationWindow::setFillImage(const float *arrayImage)
 
     scaleImage(1.0);
 
+    QString shownName = "Vesicle Segmentation Window";
+    setWindowFilePath(shownName);
+
     Debug::Info("VesicleSegmentationWindow::setFillImage: Leaving");
 }
 
@@ -122,18 +176,22 @@ void VesicleSegmentationWindow::updateSegmented()
 
     newQImage.fill(QColor(0,0,0,0));
 
-    if (segmentedFlag != NULL)
+    for (int n = 0; n < segmentingPointX.size(); ++n)
     {
-        for (int j = 0; j < imageHeight; ++j)
-        {
-            for (int i = 0; i < imageWidth; ++i)
-            {
-                if (segmentedFlag[j*imageWidth + i])
-                {
-                    newQImage.setPixelColor(i, j, QColor(75, 50, 25, 100));
-                }
-            }
-        }
+        int i = (int) segmentingPointX[n];
+        int j = (int) segmentingPointY[n];
+        float di = segmentingPointX[n] - i;
+        float dj = segmentingPointY[n] - j;
+
+        int v00 = (int) ((1.0-di)*(1.0-dj)*255.0);
+        int v10 = (int) ((    di)*(1.0-dj)*255.0);
+        int v01 = (int) ((1.0-di)*(    dj)*255.0);
+        int v11 = (int) ((    di)*(    dj)*255.0);
+
+        newQImage.setPixelColor(i  , j  , QColor(255, 0, 0, v00));
+        newQImage.setPixelColor(i+1, j  , QColor(255, 0, 0, v10));
+        newQImage.setPixelColor(i  , j+1, QColor(255, 0, 0, v01));
+        newQImage.setPixelColor(i+1, j+1, QColor(255, 0, 0, v11));
     }
 
     segmented = newQImage;
@@ -147,20 +205,8 @@ void VesicleSegmentationWindow::InitViewArea(const int width, const int height)
 {
     Debug::Info("VesicleSegmentationWindow::InitViewArea: Entering");
 
-    scaleFactor = 1.0;
-
     imageWidth = width;
     imageHeight = height;
-
-    bool *segmentedFlag = (bool *) malloc(width*height * sizeof(bool));
-
-    for (int j = 0; j < height; ++j)
-    {
-        for (int i = 0; i < width; ++i)
-        {
-            segmentedFlag[gIndex(i,j,height)] = false;
-        }
-    }
 
     Debug::Info("VesicleSegmentationWindow::InitViewArea: Leaving");
 }
@@ -199,28 +245,43 @@ void VesicleSegmentationWindow::setMessage(char const message[])
     statusBar()->showMessage(tr(message));
 }
 
+void VesicleSegmentationWindow::setCompletion(float completionValue, float minCompletionValue)
+{
+    QString text = QString(STR(completion))
+                 + QString(" (")
+                 + QString(STR(minCompletionValue))
+                 + QString(")");
+
+    completionLabel->setText(text);
+}
+
 void VesicleSegmentationWindow::scrollAreaMouseClick(float x, float y)
 {
     float dx = (float) scrollArea->horizontalScrollBar()->value();
     float dy = (float) scrollArea->verticalScrollBar()->value();
 
-    int imageX = int((x+dx)/imageLabel->width() * imageWidth);
-    int imageY = int((y+dy)/imageLabel->height() * imageHeight);
+    float imageX = (x+dx)/imageLabel->width() * imageWidth;
+    float imageY = (y+dy)/imageLabel->height() * imageHeight;
 
     if (imageX >= 0 and imageY >= 0 and imageX < imageWidth and imageY < imageHeight)
     {
         if (addAct->isChecked())
         {
+            Debug::Info("Add: " + STR(imageX) + ", " + STR(imageY));
 
+            segmentingPointX.push_back(imageX);
+            segmentingPointY.push_back(imageY);
+
+            updateSegmented();
             //redrawBackground();
         }
         else if (moveAct->isChecked())
         {
-
+            Debug::Info("Move: " + STR(imageX) + ", " + STR(imageY));
         }
         else if (removeAct->isChecked())
         {
-
+            Debug::Info("Remove: " + STR(imageX) + ", " + STR(imageY));
         }
     }
 
@@ -234,6 +295,8 @@ void VesicleSegmentationWindow::adjustScrollBar(QScrollBar *scrollBar, float fac
 
 void VesicleSegmentationWindow::scaleImage(float factor)
 {
+    Debug::Info("VesicleSegmentationWindow::scaleImage: Entering");
+
     Q_ASSERT(imageLabel->pixmap());
     scaleFactor *= factor;
     imageLabel->resize(scaleFactor * imageLabel->pixmap()->size());
@@ -242,5 +305,7 @@ void VesicleSegmentationWindow::scaleImage(float factor)
     adjustScrollBar(scrollArea->verticalScrollBar(), factor);
 
     scrollArea->setScale(scaleFactor);
+
+    Debug::Info("VesicleSegmentationWindow::scaleImage: Leaving");
 }
 

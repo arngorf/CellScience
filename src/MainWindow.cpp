@@ -123,6 +123,7 @@ void MainWindow::createActions()
     QToolBar *topToolBar = addToolBar(tr("Top"));
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
+    QMenu *vesicleSegmentationMenu = menuBar()->addMenu(tr("&Vesicle Seg."));
 
 
     selectGroup = new QActionGroup(this);
@@ -358,6 +359,10 @@ void MainWindow::createActions()
     toolsMenu->addSeparator();
 
     deleteAct = toolsMenu->addAction(tr("Delete currently selected object"), this, &MainWindow::deleteObject);
+
+    vesicleSegmentationMenu->addAction(tr("Start"), this, &MainWindow::startVesicleSegmentation);
+
+    vesicleSegmentationMenu->addAction(tr("Add Vesicles to Pool"), this, &MainWindow::addVesiclesToSegmentationPool);
 
     topToolBar->addSeparator();
 
@@ -697,7 +702,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
     QString shownName = curFile;
     if (curFile.isEmpty())
-        shownName = "untitled.txt";
+        shownName = "Cell Science";
     setWindowFilePath(shownName);
 }
 
@@ -1276,6 +1281,16 @@ void MainWindow::deleteObject()
     }
 
     Debug::Info("MainWindow::deleteObject: Leaving");
+}
+
+void MainWindow::startVesicleSegmentation()
+{
+    emit startVesicleSegmentationSig();
+}
+
+void MainWindow::addVesiclesToSegmentationPool()
+{
+    emit addVesiclesToSegmentationPoolSig();
 }
 
 void MainWindow::updateCheckedActions()

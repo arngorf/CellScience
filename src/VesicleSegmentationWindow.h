@@ -34,12 +34,16 @@ protected:
 public slots:
     void setMessage(char const message[]);
 
+    void setCompletion(float completionValue, float minCompletionValue);
+
     void scrollAreaMouseClick(float x, float y);
 
 private slots:
     void zoomIn();
     void zoomOut();
     void showImage();
+    void undo();
+    void nextSlice();
 
 private:
     void redrawBackground();
@@ -55,15 +59,18 @@ private:
 
     QImage image;
     QImage segmented;
-    bool *segmentedFlag;
 
     int imageWidth;
     int imageHeight;
 
     QLabel *imageLabel;
+    QLabel *completionLabel;
 
     MouseoverScrollArea *scrollArea;
     float scaleFactor;
+
+    std::vector<float> segmentingPointX;
+    std::vector<float> segmentingPointY;
 
     QActionGroup *segmentationGroup;
 
@@ -74,8 +81,11 @@ private:
     QAction *zoomInAct;
     QAction *zoomOutAct;
 
-//signals:
+signals:
 
+    void storeSegmentationSig(std::vector<float> x, std::vector<float> y);
+
+    void nextSig();
 };
 
 #endif // VESICLE_SEGMENTATION_WINDOW_H

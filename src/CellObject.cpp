@@ -164,6 +164,39 @@ CellObject::CellObject(QTreeWidget *parent,
 
 }
 
+void CellObject::getCenter(float &center_x, float &center_y, float &center_z)
+{
+    if (n <= 0) return;
+
+    center_x = 0;
+    center_y = 0;
+    center_z = 0;
+
+    for (int i = 0; i < n; ++i)
+    {
+        center_x += x[i];
+        center_y += y[i];
+        center_z += z[i];
+    }
+
+    center_x /= n;
+    center_y /= n;
+    center_z /= n;
+}
+
+void CellObject::getCenter(int &center_x, int &center_y, int &center_z)
+{
+    if (n <= 0) return;
+
+    float float_center_x, float_center_y, float_center_z;
+
+    getCenter(float_center_x, float_center_y, float_center_z);
+
+    center_x = (int) float_center_x;
+    center_y = (int) float_center_y;
+    center_z = (int) float_center_z;
+}
+
 void CellObject::getBounds(int &beginX, int &endX,
                            int &beginY, int &endY,
                            int &beginZ, int &endZ)
