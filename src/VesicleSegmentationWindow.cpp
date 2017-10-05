@@ -247,9 +247,9 @@ void VesicleSegmentationWindow::setMessage(char const message[])
 
 void VesicleSegmentationWindow::setCompletion(float completionValue, float minCompletionValue)
 {
-    QString text = QString(STR(completion))
+    QString text = QString::number(completionValue)
                  + QString(" (")
-                 + QString(STR(minCompletionValue))
+                 + QString::number(minCompletionValue)
                  + QString(")");
 
     completionLabel->setText(text);

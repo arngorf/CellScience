@@ -82,7 +82,7 @@ float VesicleSegmentationResultManager::GetCompletionValue()
 
 float VesicleSegmentationResultManager::GetMinCompletionValue()
 {
-    if (vesicleResultArray.size <= 0)
+    if (vesicleResultArray.size() <= 0)
     {
         return 0;
     }

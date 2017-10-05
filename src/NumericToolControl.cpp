@@ -1481,10 +1481,10 @@ void NumericToolControl::startVesicleSegmentationSlot()
     // Pass on image slice from manager to window
     vesicleSegmentationWindow->setFillImage(vesicleSegmentationResultManager->GetImageSlice());
 
-    float completionValue = vesicleSegmentationResultManager->GetCompletionValue();
-    float minCompletionValue = vesicleSegmentationResultManager->GetMinCompletionValue();
-
-    vesicleSegmentationWindow->setCompletion(completionValue, minCompletionValue);
+    vesicleSegmentationWindow->setCompletion(
+        vesicleSegmentationResultManager->GetCompletionValue(),
+        vesicleSegmentationResultManager->GetMinCompletionValue()
+        );
     // Generate rotated 2D vesicle slice image
 
     // vesicleSegmentationWindow->hideBigMessage();
@@ -2050,8 +2050,13 @@ void NumericToolControl::nextSlot()
     vesicleSegmentationResultManager->NextSlice();
 
     // Pass on image slice from manager to window
-    vesicleSegmentationWindow->setFillImage(vesicleSegmentationResultManager->GetImageSlice());
-    vesicleSegmentationWindow->setCompletion(vesicleSegmentationResultManager->GetCompletionValue());
+    vesicleSegmentationWindow->setFillImage(
+        vesicleSegmentationResultManager->GetImageSlice()
+        );    
+    vesicleSegmentationWindow->setCompletion(
+        vesicleSegmentationResultManager->GetCompletionValue(),
+        vesicleSegmentationResultManager->GetMinCompletionValue()
+        );
 }
 
 void NumericToolControl::cleanSignedDistanceMap(int width,

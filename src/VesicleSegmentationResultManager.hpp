@@ -38,6 +38,8 @@ private:
 
     std::vector<VesicleSegmentationResult*> vesicleResultArray;
 
+    int completedSlices;
+
     int numRotations;
 
     int curVesicleIndex;
